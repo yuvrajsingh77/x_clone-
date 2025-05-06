@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Register - X Clone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1d9bf0;
+            --primary-hover: #1a8cd8;
+            --background: #000000;
+            --card-bg: #16181c;
+            --text-primary: #ffffff;
+            --text-secondary: #8899a6;
+            --border-color: #2f3336;
+            --hover-bg: #1e2732;
+            --danger: #f4212e;
+            --success: #00ba7c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .auth-container {
+            background-color: var(--card-bg);
+            padding: 32px;
+            border-radius: 16px;
+            width: 380px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+        }
+
+        .logo {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 10px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(29, 155, 240, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 9999px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            margin-top: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .toggle-link {
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-block;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+
+        .error-list {
+            color: var(--danger);
+            text-align: left;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+            background-color: rgba(244, 33, 46, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            list-style-type: none;
+        }
+
+        .info-list {
+            color: var(--success);
+            text-align: left;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+            background-color: rgba(0, 186, 124, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            list-style-type: none;
+        }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <div class="logo">X</div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="form-container {% if form_type == 'login' or not form_type %}active{% endif %}">
+        <h2>Sign in to X</h2>
+
+        {% if form_type == 'login' and messages %}
+            <ul class="error-list">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <li>{{ message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <ul class="info-list">
+                {% for message in messages %}
+                    {% if message.tags == 'success' or message.tags == 'info' %}
+                        <li>{{ message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username or Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Sign in</button>
+        </form>
+        <p class="toggle-link" onclick="toggleForms()">Don't have an account? Sign up</p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerForm" class="form-container {% if form_type == 'register' %}active{% endif %}">
+        <h2>Create your account</h2>
+
+        {% if form_type == 'register' and messages %}
+            <ul class="error-list">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <li>{{ message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <ul class="info-list">
+                {% for message in messages %}
+                    {% if message.tags == 'success' or message.tags == 'info' %}
+                        <li>{{ message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form action="{% url 'register' %}" method="POST">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+            <button type="submit">Sign up</button>
+        </form>
+        <p class="toggle-link" onclick="toggleForms()">Already have an account? Sign in</p>
+    </div>
+</div>
+
+<script>
+    function toggleForms() {
+        document.getElementById("loginForm").classList.toggle("active");
+        document.getElementById("registerForm").classList.toggle("active");
+    }
+</script>
+</body>
+</html>

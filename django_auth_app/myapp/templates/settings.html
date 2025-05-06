@@ -1,0 +1,409 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Settings - X Clone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1d9bf0;
+            --primary-hover: #1a8cd8;
+            --background: #15181c;
+            --card-bg: #1e2732;
+            --text-primary: #e7e9ea;
+            --text-secondary: #71767b;
+            --border-color: #2f3336;
+            --hover-bg: rgba(239, 243, 244, 0.1);
+            --danger: #f4212e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100%;
+            width: 100%;
+        }
+
+        .sidebar {
+            padding: 20px;
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            height: 100%;
+        }
+
+        .sidebar h2 {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            padding-left: 12px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .sidebar a.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .sidebar .logout {
+            color: var(--danger);
+        }
+
+        .sidebar .logout:hover {
+            background-color: rgba(244, 33, 46, 0.1);
+        }
+
+        .container {
+            padding: 2rem;
+            overflow-y: auto;
+            height: 100%;
+            width: 100%;
+        }
+
+        .settings-header {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .setting-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .setting-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-option {
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-option:last-child {
+            border-bottom: none;
+        }
+
+        .option-info {
+            flex: 1;
+        }
+
+        .option-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .option-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 280px;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(29, 155, 240, 0.3);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #39444d;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 9999px;
+            cursor: pointer;
+            margin-top: 16px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.02);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                position: relative;
+                height: auto;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .setting-option {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                margin-top: 12px;
+            }
+
+            .toggle-switch {
+                margin-top: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>X</h2>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'explore' %}">Explore</a></li>
+            <li><a href="{% url 'messages' %}">Messages</a></li>
+            <li><a href="{% url 'settings' %}" class="active">Settings</a></li>
+            <li><a href="{% url 'logout' %}" class="logout">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Settings Panel -->
+    <div class="container">
+        <div class="settings-header">
+            Settings
+        </div>
+
+        <form method="POST" action="{% url 'settings' %}">
+            {% csrf_token %}
+            
+            <!-- Account Section -->
+            <div class="setting-section">
+                <div class="section-header">Account</div>
+                
+                <div class="setting-option">
+                    <div class="option-info">
+                        <div class="option-label">Username</div>
+                        <div class="option-description">Change your display name</div>
+                    </div>
+                    <input type="text" name="username" value="{{ user.username }}" placeholder="Username">
+                </div>
+                
+                <div class="setting-option">
+                    <div class="option-info">
+                        <div class="option-label">Password</div>
+                        <div class="option-description">Change your password</div>
+                    </div>
+                    <input type="password" name="password" placeholder="New password">
+                </div>
+            </div>
+            
+            <!-- Privacy Section -->
+            <div class="setting-section">
+                <div class="section-header">Privacy</div>
+                
+                <div class="setting-option">
+                    <div class="option-info">
+                        <div class="option-label">Private Account</div>
+                        <div class="option-description">Make your account private</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="private_account" {% if settings.private_account %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-option">
+                    <div class="option-info">
+                        <div class="option-label">Allow Tagging</div>
+                        <div class="option-description">Allow others to tag you</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="allow_tagging" {% if settings.allow_tagging %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Notifications Section -->
+            <div class="setting-section">
+                <div class="section-header">Notifications</div>
+                
+                <div class="setting-option">
+                    <div class="option-info">
+                        <div class="option-label">Email Notifications</div>
+                        <div class="option-description">Receive email notifications</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="email_notifications" {% if settings.email_notifications %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-option">
+                    <div class="option-info">
+                        <div class="option-label">Push Notifications</div>
+                        <div class="option-description">Receive push notifications</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="push_notifications" {% if settings.push_notifications %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Appearance Section -->
+            <div class="setting-section">
+                <div class="section-header">Appearance</div>
+                
+                <div class="setting-option">
+                    <div class="option-info">
+                        <div class="option-label">Dark Mode</div>
+                        <div class="option-description">Toggle dark theme</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="dark_mode" {% if settings.dark_mode %}checked{% endif %} checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit">Save Settings</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

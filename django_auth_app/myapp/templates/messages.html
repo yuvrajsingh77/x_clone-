@@ -1,0 +1,840 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Messages - X Clone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1d9bf0;
+            --primary-hover: #1a8cd8;
+            --background: #15181c;
+            --card-bg: #1e2732;
+            --text-primary: #e7e9ea;
+            --text-secondary: #71767b;
+            --border-color: #2f3336;
+            --hover-bg: rgba(239, 243, 244, 0.1);
+            --danger: #f4212e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100%;
+            width: 100%;
+        }
+
+        .sidebar {
+            padding: 20px;
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            height: 100%;
+        }
+
+        .sidebar h2 {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            padding-left: 12px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .sidebar a.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .sidebar .logout {
+            color: var(--danger);
+        }
+
+        .sidebar .logout:hover {
+            background-color: rgba(244, 33, 46, 0.1);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            height: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .conversations-list {
+            border-right: 1px solid var(--border-color);
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .conversation-header {
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .conversation-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .conversation-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .conversation-item.active {
+            background-color: var(--hover-bg);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .last-message {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+        }
+
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 0;
+            background-color: var(--background);
+        }
+
+        .message-header {
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .message-content {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-input {
+            border-top: 1px solid var(--border-color);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .message-input textarea {
+            flex-grow: 1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-primary);
+            padding: 12px 15px;
+            resize: none;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .message-input textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(29, 155, 240, 0.3);
+        }
+
+        .send-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-sent {
+            background-color: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-received {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .new-message-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-message-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .new-message-btn:active {
+            transform: translateY(0);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            width: 400px;
+            max-width: 90%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body input {
+            width: 100%;
+            background-color: var(--background);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            color: var(--text-primary);
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .modal-body input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(29, 155, 240, 0.3);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 250px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .conversations-list {
+                display: none;
+            }
+
+            .conversations-list.active {
+                display: block;
+            }
+
+            .message-container {
+                display: none;
+            }
+
+            .message-container.active {
+                display: flex;
+            }
+
+            .back-btn {
+                display: block;
+                margin-right: 10px;
+                background: none;
+                border: none;
+                color: var(--text-primary);
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>X</h2>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'explore' %}">Explore</a></li>
+            <li><a href="{% url 'messages' %}" class="active">Messages</a></li>
+            <li><a href="{% url 'settings' %}">Settings</a></li>
+            <li><a href="{% url 'logout' %}" class="logout">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Conversations List -->
+        <div class="conversations-list active" id="conversationsList">
+            <div class="conversation-header">
+                Messages
+                <button class="new-message-btn" id="newMessageBtn">New Message</button>
+            </div>
+            
+            <!-- Sample conversations - you would generate these dynamically from your backend -->
+            <div class="conversation-item active" data-conversation-id="1" onclick="openConversation(1, 'Jane Smith')">
+                <div class="user-info">
+                    <div class="user-avatar">JS</div>
+                    <div class="user-name">Jane Smith</div>
+                </div>
+                <div class="last-message">Hey, how's it going with the project?</div>
+            </div>
+            
+            <div class="conversation-item" data-conversation-id="2" onclick="openConversation(2, 'John Doe')">
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-name">John Doe</div>
+                </div>
+                <div class="last-message">Did you see that new post? It's amazing!</div>
+            </div>
+            
+            <div class="conversation-item" data-conversation-id="3" onclick="openConversation(3, 'Alex Johnson')">
+                <div class="user-info">
+                    <div class="user-avatar">AJ</div>
+                    <div class="user-name">Alex Johnson</div>
+                </div>
+                <div class="last-message">Let's meet up next week if you're free</div>
+            </div>
+        </div>
+
+        <!-- Message Container -->
+        <div class="message-container" id="messageContainer">
+            <div class="message-header">
+                <button class="back-btn" id="backBtn" style="display: none;">←</button>
+                <span id="conversationName">Jane Smith</span>
+            </div>
+            
+            <div class="message-content" id="messageContent">
+                <!-- Messages will be populated here -->
+                <div class="message-bubble message-received">
+                    Hey, how's it going with the project?
+                    <div class="timestamp">11:20 AM</div>
+                </div>
+                
+                <div class="message-bubble message-sent">
+                    It's coming along well! Just need to finish up a few things.
+                    <div class="timestamp">11:22 AM</div>
+                </div>
+                
+                <div class="message-bubble message-received">
+                    Great! Let me know if you need any help. I'm free this weekend.
+                    <div class="timestamp">11:25 AM</div>
+                </div>
+            </div>
+            
+            <div class="message-input">
+                <textarea id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+                <button class="send-button" id="sendButton">➤</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Message Modal -->
+<div class="modal" id="newMessageModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>New Message</h3>
+            <button class="close-modal" id="closeModal">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" id="searchUser" placeholder="Search for a user...">
+            <div id="userResults">
+                <!-- User search results will be displayed here -->
+                <div class="conversation-item" onclick="startNewConversation('Emily Brown')">
+                    <div class="user-info">
+                        <div class="user-avatar">EB</div>
+                        <div class="user-name">Emily Brown</div>
+                    </div>
+                </div>
+                <div class="conversation-item" onclick="startNewConversation('Michael Wilson')">
+                    <div class="user-info">
+                        <div class="user-avatar">MW</div>
+                        <div class="user-name">Michael Wilson</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // DOM Elements
+    const conversationsList = document.getElementById('conversationsList');
+    const messageContainer = document.getElementById('messageContainer');
+    const messageContent = document.getElementById('messageContent');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const conversationName = document.getElementById('conversationName');
+    const backBtn = document.getElementById('backBtn');
+    const newMessageBtn = document.getElementById('newMessageBtn');
+    const newMessageModal = document.getElementById('newMessageModal');
+    const closeModal = document.getElementById('closeModal');
+    const searchUser = document.getElementById('searchUser');
+
+    // Mock data for conversations
+    const conversations = {
+        1: [
+            { text: "Hey, how's it going with the project?", sent: false, timestamp: "11:20 AM" },
+            { text: "It's coming along well! Just need to finish up a few things.", sent: true, timestamp: "11:22 AM" },
+            { text: "Great! Let me know if you need any help. I'm free this weekend.", sent: false, timestamp: "11:25 AM" }
+        ],
+        2: [
+            { text: "Did you see that new post? It's amazing!", sent: false, timestamp: "10:05 AM" },
+            { text: "Yeah, I just saw it! Super cool.", sent: true, timestamp: "10:10 AM" }
+        ],
+        3: [
+            { text: "Let's meet up next week if you're free", sent: false, timestamp: "Yesterday" },
+            { text: "Sounds good! How about Tuesday?", sent: true, timestamp: "Yesterday" },
+            { text: "Tuesday works for me. See you then!", sent: false, timestamp: "Yesterday" }
+        ]
+    };
+
+    let currentConversationId = 1;
+
+    // Handle mobile back button
+    backBtn.addEventListener('click', () => {
+        conversationsList.classList.add('active');
+        messageContainer.classList.remove('active');
+    });
+
+    // Media query listener for responsive design
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    function handleScreenChange(e) {
+        if (e.matches) {
+            // Mobile view
+            backBtn.style.display = 'block';
+            if (conversationsList.classList.contains('active')) {
+                messageContainer.classList.remove('active');
+            } else {
+                conversationsList.classList.remove('active');
+                messageContainer.classList.add('active');
+            }
+        } else {
+            // Desktop view
+            backBtn.style.display = 'none';
+            conversationsList.classList.add('active');
+            messageContainer.classList.add('active');
+        }
+    }
+    
+    mediaQuery.addListener(handleScreenChange);
+    handleScreenChange(mediaQuery);
+
+    // Open a conversation
+    function openConversation(id, name) {
+        currentConversationId = id;
+        conversationName.textContent = name;
+        
+        // Update active conversation
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        document.querySelector(`.conversation-item[data-conversation-id="${id}"]`).classList.add('active');
+        
+        // Load messages
+        loadMessages(id);
+        
+        // For mobile: show message container, hide conversations list
+        if (mediaQuery.matches) {
+            conversationsList.classList.remove('active');
+            messageContainer.classList.add('active');
+        }
+    }
+
+    // Load messages for a conversation
+    function loadMessages(id) {
+        messageContent.innerHTML = '';
+        
+        // Add messages from the conversation
+        if (conversations[id]) {
+            conversations[id].forEach(msg => {
+                addMessageToDOM(msg.text, msg.sent, msg.timestamp);
+            });
+        }
+        
+        // Scroll to bottom
+        messageContent.scrollTop = messageContent.scrollHeight;
+    }
+
+    // Add a message to the DOM
+    function addMessageToDOM(text, sent, timestamp) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message-bubble');
+        messageDiv.classList.add(sent ? 'message-sent' : 'message-received');
+        
+        messageDiv.textContent = text;
+        
+        const timestampDiv = document.createElement('div');
+        timestampDiv.classList.add('timestamp');
+        timestampDiv.textContent = timestamp || getCurrentTime();
+        
+        messageDiv.appendChild(timestampDiv);
+        messageContent.appendChild(messageDiv);
+    }
+
+    // Send a message
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+        
+        // Add message to current conversation
+        if (!conversations[currentConversationId]) {
+            conversations[currentConversationId] = [];
+        }
+        
+        const newMessage = {
+            text: text,
+            sent: true,
+            timestamp: getCurrentTime()
+        };
+        
+        conversations[currentConversationId].push(newMessage);
+        
+        // Add to DOM
+        addMessageToDOM(text, true, getCurrentTime());
+        
+        // Update last message in conversation list
+        const conversationItem = document.querySelector(`.conversation-item[data-conversation-id="${currentConversationId}"]`);
+        if (conversationItem) {
+            conversationItem.querySelector('.last-message').textContent = text;
+        }
+        
+        // Clear input
+        messageInput.value = '';
+        
+        // Scroll to bottom
+        messageContent.scrollTop = messageContent.scrollHeight;
+        
+        // Simulate response (for demo purposes)
+        if (Math.random() > 0.5) {
+            setTimeout(() => {
+                const responseText = "Thanks for your message! This is an automated response for demo purposes.";
+                const responseMsg = {
+                    text: responseText,
+                    sent: false,
+                    timestamp: getCurrentTime()
+                };
+                
+                conversations[currentConversationId].push(responseMsg);
+                addMessageToDOM(responseText, false, getCurrentTime());
+                
+                // Update last message
+                if (conversationItem) {
+                    conversationItem.querySelector('.last-message').textContent = responseText;
+                }
+                
+                // Scroll to bottom
+                messageContent.scrollTop = messageContent.scrollHeight;
+            }, 1000 + Math.random() * 2000);
+        }
+    }
+
+    // Get current time in HH:MM AM/PM format
+    function getCurrentTime() {
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        
+        return `${hours}:${minutes} ${ampm}`;
+    }
+
+    // Send button event
+    sendButton.addEventListener('click', sendMessage);
+
+    // Enter key to send message
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // New Message Modal
+    newMessageBtn.addEventListener('click', () => {
+        newMessageModal.style.display = 'flex';
+    });
+
+    closeModal.addEventListener('click', () => {
+        newMessageModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === newMessageModal) {
+            newMessageModal.style.display = 'none';
+        }
+    });
+
+    // Search for users
+    searchUser.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        // Here you would typically make an API call to search for users
+        // For demo purposes, we'll just filter the static list
+        
+        const users = document.querySelectorAll('#userResults .conversation-item');
+        users.forEach(user => {
+            const name = user.querySelector('.user-name').textContent.toLowerCase();
+            if (name.includes(query) || query === '') {
+                user.style.display = 'block';
+            } else {
+                user.style.display = 'none';
+            }
+        });
+    });
+
+    // Start a new conversation
+    function startNewConversation(name) {
+        // Generate new conversation ID
+        const newId = Object.keys(conversations).length + 1;
+        
+        // Create new conversation object
+        conversations[newId] = [];
+        
+        // Create new conversation element
+        const newConversation = document.createElement('div');
+        newConversation.classList.add('conversation-item');
+        newConversation.setAttribute('data-conversation-id', newId);
+        newConversation.onclick = () => openConversation(newId, name);
+        
+        // Create user info
+        const userInfo = document.createElement('div');
+        userInfo.classList.add('user-info');
+        
+        // Create avatar with initials
+        const avatar = document.createElement('div');
+        avatar.classList.add('user-avatar');
+        const initials = name.split(' ').map(n => n[0]).join('');
+        avatar.textContent = initials;
+        
+        // Create user name
+        const userName = document.createElement('div');
+        userName.classList.add('user-name');
+        userName.textContent = name;
+        
+        // Create last message
+        const lastMessage = document.createElement('div');
+        lastMessage.classList.add('last-message');
+        lastMessage.textContent = 'Start a new conversation';
+        
+        // Assemble elements
+        userInfo.appendChild(avatar);
+        userInfo.appendChild(userName);
+        newConversation.appendChild(userInfo);
+        newConversation.appendChild(lastMessage);
+        
+        // Add to conversations list at the top
+        conversationsList.insertBefore(newConversation, conversationsList.querySelector('.conversation-item'));
+        
+        // Open the conversation
+        openConversation(newId, name);
+        
+        // Close modal
+        newMessageModal.style.display = 'none';
+    }
+
+    // Initialize
+    loadMessages(currentConversationId);
+</script>
+</body>
+</html>
